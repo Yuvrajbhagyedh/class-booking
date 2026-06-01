@@ -1,0 +1,270 @@
+{
+  "info": {
+    "name": "Class Booking API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api" },
+    { "key": "teacher_token", "value": "" },
+    { "key": "parent_token", "value": "" },
+    { "key": "course_id", "value": "" },
+    { "key": "offering_id", "value": "" },
+    { "key": "booking_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Teacher",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Teacher\",\n  \"email\": \"teacher@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"teacher\",\n  \"timezone\": \"Asia/Kolkata\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Parent",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bob Parent\",\n  \"email\": \"parent@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"parent\",\n  \"timezone\": \"America/New_York\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login Teacher",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const res = pm.response.json();",
+                "if (res.access_token) pm.collectionVariables.set('teacher_token', res.access_token);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"teacher@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login Parent",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const res = pm.response.json();",
+                "if (res.access_token) pm.collectionVariables.set('parent_token', res.access_token);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"parent@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teacher - Courses",
+      "item": [
+        {
+          "name": "Create Course",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const res = pm.response.json();",
+                "if (res.id) pm.collectionVariables.set('course_id', res.id);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacher_token}}" }
+            ],
+            "url": "{{base_url}}/courses",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Python Coding\",\n  \"description\": \"Learn Python from scratch\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Courses",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacher_token}}" }],
+            "url": "{{base_url}}/courses/my"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teacher - Offerings",
+      "item": [
+        {
+          "name": "Create Offering",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const res = pm.response.json();",
+                "if (res.id) pm.collectionVariables.set('offering_id', res.id);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacher_token}}" }
+            ],
+            "url": "{{base_url}}/offerings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Saturday Batch\",\n  \"description\": \"Weekend sessions\",\n  \"courseId\": \"{{course_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Session 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacher_token}}" }
+            ],
+            "url": "{{base_url}}/offerings/{{offering_id}}/sessions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2025-06-07T18:00:00\",\n  \"endTime\": \"2025-06-07T19:00:00\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Session 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacher_token}}" }
+            ],
+            "url": "{{base_url}}/offerings/{{offering_id}}/sessions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2025-06-14T18:00:00\",\n  \"endTime\": \"2025-06-14T19:00:00\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Session 3",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{teacher_token}}" }
+            ],
+            "url": "{{base_url}}/offerings/{{offering_id}}/sessions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2025-06-21T18:00:00\",\n  \"endTime\": \"2025-06-21T19:00:00\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get My Offerings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{teacher_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/offerings/my?timezone=Asia/Kolkata",
+              "query": [{ "key": "timezone", "value": "Asia/Kolkata" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parent - Browse & Book",
+      "item": [
+        {
+          "name": "Get All Offerings (Parent TZ)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{parent_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/offerings?timezone=America/New_York",
+              "query": [{ "key": "timezone", "value": "America/New_York" }]
+            }
+          }
+        },
+        {
+          "name": "Book Offering",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const res = pm.response.json();",
+                "if (res.id) pm.collectionVariables.set('booking_id', res.id);"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{parent_token}}" }],
+            "url": "{{base_url}}/bookings/{{offering_id}}"
+          }
+        },
+        {
+          "name": "Book Same Offering Again (should 409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{parent_token}}" }],
+            "url": "{{base_url}}/bookings/{{offering_id}}"
+          }
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{parent_token}}" }],
+            "url": {
+              "raw": "{{base_url}}/bookings/my?timezone=America/New_York",
+              "query": [{ "key": "timezone", "value": "America/New_York" }]
+            }
+          }
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{parent_token}}" }],
+            "url": "{{base_url}}/bookings/{{booking_id}}"
+          }
+        }
+      ]
+    }
+  ]
+}
